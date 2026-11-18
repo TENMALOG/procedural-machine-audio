@@ -4,6 +4,8 @@
 
 **Engine âm thanh thủ tục cho máy móc tương tác và mô phỏng.**
 
+**▶ Demo trực tuyến: [pma.rewrite.tw](https://pma.rewrite.tw/?lang=vi)** (nên dùng tai nghe)
+
 Những âm thanh cơ khí nhỏ — tiếng tách, tiếng xì nhẹ, tiếng khí nén trầm, luồng khí của một cánh tay di chuyển nhanh — được tạo trực tiếp bằng Web Audio API. Không có tệp âm thanh nào: mọi âm thanh đều là nhiễu được lọc và tạo hình bằng dữ liệu, được điều khiển bởi chính những gì mô phỏng của bạn đang làm.
 
 - **Sự kiện → âm thanh.** Gán các sự kiện của mô phỏng cho các công thức âm thanh, rồi gọi `emit()`.
@@ -37,7 +39,7 @@ function frame() {
 }
 ```
 
-## Chạy bản demo
+## Chạy bản demo trên máy
 
 ```bash
 npm install

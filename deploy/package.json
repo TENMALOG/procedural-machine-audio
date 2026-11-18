@@ -1,0 +1,9 @@
+{
+  "name": "pma-demo-deploy",
+  "private": true,
+  "type": "module",
+  "description": "Deploys ../dist-demo to Cloudflare (pma.rewrite.tw). Only needed by the maintainer.",
+  "devDependencies": {
+    "cf": "1.0.0-rc.1"
+  }
+}

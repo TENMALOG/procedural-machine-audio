@@ -4,6 +4,8 @@
 
 **A procedural audio engine for interactive machines and simulations.**
 
+**▶ Live demo: [pma.rewrite.tw](https://pma.rewrite.tw/)** (headphones recommended)
+
 Small mechanical sounds — clicks, soft hisses, pneumatic thuds, the airflow of a fast-moving arm — generated live with the Web Audio API. There are no audio files: every sound is filtered noise shaped by data, driven by what your simulation is actually doing.
 
 - **Event → sound.** Map your simulation's events to sound recipes, then `emit()` them.
@@ -37,7 +39,7 @@ function frame() {
 }
 ```
 
-## Run the demo
+## Run the demo locally
 
 ```bash
 npm install
