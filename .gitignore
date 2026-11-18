@@ -6,3 +6,7 @@ dist-demo
 
 # Cloudflare deploy output
 .cloudflare/
+
+# local recordings
+.capture/
+vite.capture.config.ts

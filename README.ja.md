@@ -1,24 +1,52 @@
+<div align="center">
+
+<img src="docs/cast/NEO.svg" alt="" width="120">
+
 # procedural-machine-audio
 
 [English](README.md) · [繁體中文](README.zh-TW.md) · **日本語** · [Tiếng Việt](README.vi.md)
 
 **インタラクティブな機械とシミュレーションのためのプロシージャル・オーディオエンジン。**
 
-**▶ ライブデモ：[pma.rewrite.tw](https://pma.rewrite.tw/?lang=ja)**（ヘッドホン推奨）
+クリック音、やわらかなエア音、空気圧のこもった音、すばやく動くアームの気流音 —— すべて Web Audio API でリアルタイム合成。音声ファイルは使いません。
 
-クリック音、やわらかなエア音、空気圧のこもった音、すばやく動くアームの気流音といった小さな機械音を、Web Audio API でリアルタイムに生成します。音声ファイルは一切使いません。すべての音はデータで形づくったフィルタ付きノイズで、シミュレーションが実際に行っている動作によって鳴ります。
+**[▶ ライブデモ](https://pma.rewrite.tw/?lang=ja)** · ヘッドホン推奨
 
-- **イベント → 音**：シミュレーションのイベントを音のレシピに割り当て、`emit()` するだけ。
-- **動き → 気流**：動く部品の速度を毎フレーム渡すと、気流音がそれに合わせてふくらみ、明るくなり、押し出されます。
-- **長時間聴くために**：共振しない広帯域フィルタ、メロディなし、同じイベントの連打をまとめるボイスプール、出力段のリミッター。何時間聴いても耳障りになりません。
-- **小さい**：実行時の依存パッケージはゼロ。TypeScript で書かれ、型定義も完備。
+<a href="https://pma.rewrite.tw/?lang=ja"><img alt="demo" src="https://img.shields.io/badge/demo-pma.rewrite.tw-2b313a?style=flat-square"></a> <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/code-MIT-2b313a?style=flat-square"></a> <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-2b313a?style=flat-square"> <img alt="dependencies" src="https://img.shields.io/badge/runtime%20deps-0-2b313a?style=flat-square">
 
-このエンジンは **[QM-4 · 機械の音](https://qm4.rewrite.tw/)** から切り出したものです。QM-4 は「聴く」ために作られた架空のマウンターの 3D シミュレーターです。ここのデモはあえて最小限（長方形で描いた 2D ガントリー）にしてあり、完全な作品はそのサイトで体験できます。
+</div>
 
-## クイックスタート
+---
+
+## <img src="docs/cast/SH-05.svg" alt="" width="34" height="34" align="absmiddle"> できること
+
+<table>
+<tr><td><b>イベント → 音</b></td><td>シミュレーションのイベントを音のレシピに割り当て、<code>emit()</code> するだけ。</td></tr>
+<tr><td><b>動き → 気流</b></td><td>動く部品の速度を毎フレーム渡すと、気流音がふくらみ、明るくなり、押し出されます。</td></tr>
+<tr><td><b>長時間聴くために</b></td><td>共振しない広帯域フィルタ、メロディなし、連打の統合、出力リミッター。何時間でも心地よく。</td></tr>
+<tr><td><b>小さい</b></td><td>実行時の依存パッケージはゼロ。TypeScript で型定義も完備。</td></tr>
+</table>
+
+このエンジンは <a href="https://qm4.rewrite.tw/?lang=ja">QM-4 · 機械の音</a> から切り出したものです。「聴く」ために作られた架空のマウンターの 3D シミュレーターです。ここのデモはあえて最小限にしてあり、完全な作品はそのサイトで体験できます。
+
+## <img src="docs/cast/SH-03.svg" alt="" width="34" height="34" align="absmiddle"> 見てみる
+
+<p align="center"><a href="https://pma.rewrite.tw/?lang=ja"><img src="docs/media/demo.gif" alt="デモ：ガントリーのヘッドが目標の間を移動する" width="720"></a></p>
+
+<p align="center">GIF には音がありません。音を聴くなら：<a href="https://pma.rewrite.tw/?lang=ja">ライブデモ</a> · <a href="docs/media/demo.mp4">音つき 12 秒クリップ（MP4）</a>。</p>
+
+## <img src="docs/cast/CH-05.svg" alt="" width="34" height="34" align="absmiddle"> インストール
+
+npm にはまだ公開していません。GitHub から直接インストールできます（インストール時に自動でビルドされます）：
+
+```bash
+npm install github:TENMALOG/procedural-machine-audio
+```
+
+## <img src="docs/cast/CO-01.svg" alt="" width="34" height="34" align="absmiddle"> クイックスタート
 
 ```ts
-import { MachineAudio, planMove, sampleMove } from 'procedural-machine-audio';
+import { MachineAudio } from 'procedural-machine-audio';
 
 const audio = new MachineAudio();
 
@@ -39,39 +67,27 @@ function frame() {
 }
 ```
 
-## デモをローカルで実行
-
-```bash
-npm install
-npm run dev        # http://localhost:5320 でデモを開く
-npm test           # ユニットテスト
-npm run build      # ライブラリ → dist/
-npm run build:demo # 静的デモ → dist-demo/
-```
-
-Node.js 20 以上が必要です。ヘッドホン推奨。
-
-## API
+## <img src="docs/cast/ST-05.svg" alt="" width="34" height="34" align="absmiddle"> API
 
 ### `new MachineAudio(options?)`
 
-| オプション | 既定値 | |
+| オプション | 既定値 |  |
 |---|---|---|
-| `context` | — | 既存の `AudioContext`／`OfflineAudioContext` を使う。なければ `start()` が作成します。 |
+| `context` | — | 既存の <code>AudioContext</code>／<code>OfflineAudioContext</code> を使う。なければ <code>start()</code> が作成します。 |
 | `latency` | `0.03` | 発音ごとに加える秒数。描画ループから予約した音が遅れて鳴らないようにします。 |
 | `maxVoices` | `48` | 同時に鳴らせるワンショットの上限。 |
 | `reverb` | `0.12` | 空間の量、0–1。 |
 
 | メソッド | |
 |---|---|
-| `start()` | audio context を作成／再開します。クリックやタップのハンドラ内で呼んでください。iPhone のサイレントスイッチがオンでも音が出るようにします。 |
-| `play(name, { when?, delay?, gain?, pan?, key?, category? })` | レシピを再生します。スキップされた場合（未知、無音、数ミリ秒前の同じ発音と統合）は `false`。 |
-| `bind(event, recipe \| { recipe, gain?, category? })`／`emit(event, options?)` | シミュレーションのイベントをレシピに割り当てます。 |
-| `define(name, recipe)` | 独自のレシピを追加します。 |
-| `airflow(id, { style?, pan? })` | 名前付きの気流ボイスを取得／作成します。毎フレーム `.update(speed01, level)`、`.setStyle()` で音色変更、`.silence()` で停止。 |
-| `setLevel('master' \| 'events' \| 'airflow', value)`、`setReverb(amount)` | ミックス。 |
-| `output` | 最終ノード（リミッターの後）。アナライザーや `MediaRecorder` に接続できます。 |
-| `suspend()`／`resume()`／`stopAll()`／`dispose()` | ライフサイクル。 |
+| <code>start()</code> | audio context を作成／再開します。クリックやタップのハンドラ内で呼んでください。iPhone のサイレントスイッチがオンでも音が出るようにします。 |
+| <code>play(name, { when?, delay?, gain?, pan?, key?, category? })</code> | レシピを再生します。スキップされた場合（未知、無音、数ミリ秒前の同じ発音と統合）は <code>false</code>。 |
+| <code>bind(event, recipe &#124; { recipe, gain?, category? })</code>／<code>emit(event, options?)</code> | シミュレーションのイベントをレシピに割り当てます。 |
+| <code>define(name, recipe)</code> | 独自のレシピを追加します。 |
+| <code>airflow(id, { style?, pan? })</code> | 名前付きの気流ボイスを取得／作成します。毎フレーム <code>.update(speed01, level)</code>、<code>.setStyle()</code> で音色変更、<code>.silence()</code> で停止。 |
+| <code>setLevel('master' &#124; 'events' &#124; 'airflow', value)</code>、<code>setReverb(amount)</code> | ミックス。 |
+| <code>output</code> | 最終ノード（リミッターの後）。アナライザーや <code>MediaRecorder</code> に接続できます。 |
+| <code>suspend()</code>／<code>resume()</code>／<code>stopAll()</code>／<code>dispose()</code> | ライフサイクル。 |
 
 ### 内蔵レシピ
 
@@ -79,9 +95,9 @@ Node.js 20 以上が必要です。ヘッドホン推奨。
 
 ### 気流の音色
 
-`AIRFLOW_STYLES.smooth`（既定）· `warm`（暗め・やわらか）· `airy`（軽め）· `slow`（ゆっくりしたうねり）
+<code>smooth</code>（既定）· <code>warm</code>（暗め・やわらか）· <code>airy</code>（軽め）· <code>slow</code>（ゆっくりしたうねり）
 
-### 独自のレシピを書く
+## <img src="docs/cast/RW-01.svg" alt="" width="34" height="34" align="absmiddle"> 独自のレシピを書く
 
 レシピはただのデータで、レイヤーの並びです。各レイヤーはバンドパスしたノイズか短いトーンで、それぞれにエンベロープがあります。
 
@@ -93,41 +109,101 @@ audio.define('latch', [
 audio.play('latch');
 ```
 
-長時間でも心地よい音にするコツ：`q` は低め（約 0.6–1.5）にし、`lowpass` を加え、ノイズレイヤーには数ミリ秒以上の `attack` を与え、長いトーンのレイヤーは避けること。
+心地よい音を保つコツ：<code>q</code> は低め（約 0.6–1.5）にし、<code>lowpass</code> を加え、ノイズレイヤーには数ミリ秒の <code>attack</code> を与え、長いトーンのレイヤーは避けること。
 
-### 低レベルの部品
+## <img src="docs/cast/CH-02.svg" alt="" width="34" height="34" align="absmiddle"> 低レベルの部品
 
-エンジンが使う部品はすべてエクスポートされているので、独自の構成も組めます。
+エンジンが使う部品はすべてエクスポートされているので、独自の構成も組めます：
 
 | エクスポート | |
 |---|---|
-| `renderRecipe(ctx, destination, noise, recipe, { when, gain })` | レシピを任意のノードに予約します。 |
-| `AirflowVoice`、`getAirflowBuffers`、`AIRFLOW_STYLES` | 気流シンセサイザーと、FFT で整形したループバッファ。 |
-| `createNoiseBank(ctx, seconds, seed)` | シード指定可能で、継ぎ目なくループするホワイト／ピンク／ブラウンノイズ。 |
-| `createRoomImpulse(ctx)` | `ConvolverNode` 用の短くやわらかな空間インパルス応答。 |
-| `VoicePool` | ボイス数の上限、古いボイスの奪取、連続イベントの統合。 |
-| `EventScheduler` | シミュレーション用の決定的なイベントキュー（時刻、次に追加順）。 |
-| `planMove`、`sampleMove` | 台形／S 字カーブの移動プロファイル。物理的にもっともらしい速度で気流を動かせます。 |
+| <code>renderRecipe(ctx, destination, noise, recipe, { when, gain })</code> | レシピを任意のノードに予約します。 |
+| <code>AirflowVoice</code>、<code>getAirflowBuffers</code>、<code>AIRFLOW_STYLES</code> | 気流シンセサイザーと、FFT で整形したループバッファ。 |
+| <code>createNoiseBank(ctx, seconds, seed)</code> | シード指定可能で、継ぎ目なくループするホワイト／ピンク／ブラウンノイズ。 |
+| <code>createRoomImpulse(ctx)</code> | <code>ConvolverNode</code> 用の短くやわらかな空間インパルス応答。 |
+| <code>VoicePool</code> | ボイス数の上限、古いボイスの奪取、連続イベントの統合。 |
+| <code>EventScheduler</code> | シミュレーション用の決定的なイベントキュー（時刻、次に追加順）。 |
+| <code>planMove</code>、<code>sampleMove</code> | 台形／S 字カーブの移動プロファイル。もっともらしい速度で気流を動かせます。 |
 
-## 気流音のしくみ
+## <img src="docs/cast/GR-04.svg" alt="" width="34" height="34" align="absmiddle"> 気流音のしくみ
 
-2 層のループノイズを逆 FFT で一度だけ作ります（そのため継ぎ目なくループします）。
+2 層のループノイズを逆 FFT で一度だけ作るので、継ぎ目なくループします：
 
-- **ボディ**：広い周波数カーブを持つノイズ。音量は速度の 2 乗に従い、その下に小さな常時の気流があります。スペクトル全体も速度とともに上へ移動します。
-- **プッシュ**：ガウス形の低域ノイズ帯（共振ではありません）で、中心周波数が速度とともに上がります。ボディより速いエンベロープなので、動き出すたびにやわらかな「押し」が入ります。
+- <b>ボディ</b>：広い周波数カーブを持つノイズ。音量は速度の 2 乗に従い、その下に小さな常時の気流があり、スペクトル全体も速度とともに上へ移動します。
+- <b>プッシュ</b>：ガウス形の低域ノイズ帯（共振ではありません）で、中心周波数が速度とともに上がります。ボディより速いエンベロープなので、動き出すたびにやわらかな「押し」が入ります。
 
 高域のシェルフはボディより少し遅れて開き（「空気感」）、音像は左右にゆるやかに揺れます。オシレーターも共振フィルタも使わないので、うなりや笛のような音は出ません。
 
-## ステータス
+## <img src="docs/cast/DU-03.svg" alt="" width="34" height="34" align="absmiddle"> 開発
 
-`0.1.0`：初期段階で、API は今後変わる可能性があります。npm にはまだ公開していません。
+```bash
+npm install
+npm run dev        # http://localhost:5320 でデモを開く
+npm test           # ユニットテスト
+npm run build      # ライブラリ → dist/
+npm run build:demo # 静的デモ → dist-demo/
+```
 
-## 作者
+Node.js 20 以上が必要です。
 
-制作：**TENMALOG** · 完全版：[qm4.rewrite.tw](https://qm4.rewrite.tw/)
+## <img src="docs/cast/ST-03.svg" alt="" width="34" height="34" align="absmiddle"> ステータス
 
-## ライセンス
+<code>0.1.0</code>：初期段階で、API は今後変わる可能性があります。
 
-[MIT](LICENSE) © 2026 TENMALOG
+## <img src="docs/cast/DU-04.svg" alt="" width="34" height="34" align="absmiddle"> ライセンス
 
-MIT ライセンスの対象はこのリポジトリのコードのみです。QM-4 のサイト本体、その 3D モデル、キャラクター、アートワーク、調整済みのサウンドは別の作品であり、含まれません。
+コード：[MIT](LICENSE) © 2026 TENMALOG。
+
+<code>docs/cast/</code> のキャラクターイラストは TENMALOG による假想社のオリジナルキャラクターで、MIT ライセンスの対象<b>外</b>です。すべての権利を留保します（[詳細](docs/cast/NOTICE.md)）。QM-4 のサイト本体、3D モデル、アートワーク、調整済みのサウンドも別の作品であり、含まれません。
+
+---
+
+<div align="center">
+
+### 假想社のメンバー
+
+<img src="docs/cast/NEO.svg" alt="NEO" width="44" height="44">
+<img src="docs/cast/ZK.svg" alt="ZK" width="44" height="44">
+<img src="docs/cast/RW-01.svg" alt="RW-01" width="44" height="44">
+<img src="docs/cast/RW-02.svg" alt="RW-02" width="44" height="44">
+<img src="docs/cast/RW-03.svg" alt="RW-03" width="44" height="44">
+<img src="docs/cast/RW-04.svg" alt="RW-04" width="44" height="44">
+<img src="docs/cast/RW-05.svg" alt="RW-05" width="44" height="44">
+<img src="docs/cast/DU-01.svg" alt="DU-01" width="44" height="44">
+<img src="docs/cast/DU-02.svg" alt="DU-02" width="44" height="44">
+<img src="docs/cast/DU-03.svg" alt="DU-03" width="44" height="44">
+<img src="docs/cast/DU-04.svg" alt="DU-04" width="44" height="44">
+<img src="docs/cast/DU-05.svg" alt="DU-05" width="44" height="44">
+<img src="docs/cast/CO-01.svg" alt="CO-01" width="44" height="44">
+<img src="docs/cast/CO-02.svg" alt="CO-02" width="44" height="44">
+<img src="docs/cast/CO-03.svg" alt="CO-03" width="44" height="44">
+<img src="docs/cast/CO-04.svg" alt="CO-04" width="44" height="44">
+<img src="docs/cast/CO-05.svg" alt="CO-05" width="44" height="44">
+<img src="docs/cast/CH-01.svg" alt="CH-01" width="44" height="44">
+<img src="docs/cast/CH-02.svg" alt="CH-02" width="44" height="44">
+<img src="docs/cast/CH-03.svg" alt="CH-03" width="44" height="44">
+<img src="docs/cast/CH-04.svg" alt="CH-04" width="44" height="44">
+<img src="docs/cast/CH-05.svg" alt="CH-05" width="44" height="44">
+<img src="docs/cast/ST-01.svg" alt="ST-01" width="44" height="44">
+<img src="docs/cast/ST-02.svg" alt="ST-02" width="44" height="44">
+<img src="docs/cast/ST-03.svg" alt="ST-03" width="44" height="44">
+<img src="docs/cast/ST-04.svg" alt="ST-04" width="44" height="44">
+<img src="docs/cast/ST-05.svg" alt="ST-05" width="44" height="44">
+<img src="docs/cast/GR-01.svg" alt="GR-01" width="44" height="44">
+<img src="docs/cast/GR-02.svg" alt="GR-02" width="44" height="44">
+<img src="docs/cast/GR-03.svg" alt="GR-03" width="44" height="44">
+<img src="docs/cast/GR-04.svg" alt="GR-04" width="44" height="44">
+<img src="docs/cast/GR-05.svg" alt="GR-05" width="44" height="44">
+<img src="docs/cast/SH-01.svg" alt="SH-01" width="44" height="44">
+<img src="docs/cast/SH-02.svg" alt="SH-02" width="44" height="44">
+<img src="docs/cast/SH-03.svg" alt="SH-03" width="44" height="44">
+<img src="docs/cast/SH-04.svg" alt="SH-04" width="44" height="44">
+<img src="docs/cast/SH-05.svg" alt="SH-05" width="44" height="44">
+
+<sub>TENMALOG のオリジナルキャラクターたちが、この README にお付き合いします。</sub>
+
+<br><br>
+
+制作：<b>TENMALOG</b> · <a href="https://qm4.rewrite.tw/?lang=ja">QM-4</a> · <a href="https://pma.rewrite.tw/?lang=ja">ライブデモ</a>
+
+</div>
