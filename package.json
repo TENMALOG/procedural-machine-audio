@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "A procedural audio engine for interactive machines and simulations (Web Audio, no samples).",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "author": "TENMALOG",
   "homepage": "https://qm4.rewrite.tw/",
   "type": "module",
@@ -20,7 +20,8 @@
     "README.md",
     "README.zh-TW.md",
     "README.ja.md",
-    "README.vi.md"
+    "README.vi.md",
+    "LICENSE"
   ],
   "sideEffects": false,
   "keywords": [

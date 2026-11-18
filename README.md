@@ -126,4 +126,6 @@ Made by **TENMALOG** · Full experience: [qm4.rewrite.tw](https://qm4.rewrite.tw
 
 ## License
 
-Not decided yet (MIT is being considered). Until a license file is added, all rights are reserved.
+[MIT](LICENSE) © 2026 TENMALOG
+
+The MIT License covers the code in this repository only. The QM-4 website, its 3D models, characters, artwork and tuned sounds are separate works and are not included.

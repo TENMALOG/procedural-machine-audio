@@ -126,4 +126,6 @@ Thực hiện bởi **TENMALOG** · Trải nghiệm đầy đủ: [qm4.rewrite.t
 
 ## Giấy phép
 
-Chưa quyết định (đang cân nhắc MIT). Cho đến khi thêm tệp giấy phép, mọi quyền được bảo lưu.
+[MIT](LICENSE) © 2026 TENMALOG
+
+Giấy phép MIT chỉ áp dụng cho mã nguồn trong kho này. Trang web QM-4, các mô hình 3D, nhân vật, hình ảnh và âm thanh đã tinh chỉnh của nó là những tác phẩm riêng và không được bao gồm.
