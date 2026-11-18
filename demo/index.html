@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>procedural-machine-audio · demo</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'" />
+    <style>
+      :root { color-scheme: dark; --bg: #101215; --panel: #181b20; --line: #2a2f37; --ink: #e8eaed; --soft: #9aa2ad; --accent: #7fb6ff; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+      main { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
+      header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+      h1 { font-size: 20px; margin: 0; font-weight: 600; }
+      p.lead { margin: 0 0 18px; color: var(--soft); }
+      canvas { display: block; width: 100%; height: auto; aspect-ratio: 16 / 7; background: #0b0d10; border: 1px solid var(--line); border-radius: 12px; }
+      .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 24px; margin-top: 16px; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+      label { display: grid; grid-template-columns: 110px 1fr 44px; align-items: center; gap: 10px; color: var(--soft); }
+      label output { color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+      input[type=range] { width: 100%; accent-color: var(--accent); }
+      select { background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+      .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
+      button { background: var(--ink); color: #101215; border: 0; border-radius: 999px; padding: 10px 22px; font: 600 14px system-ui, sans-serif; cursor: pointer; }
+      button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+      button:disabled { opacity: 0.5; cursor: default; }
+      .stats { color: var(--soft); font-size: 12px; font-variant-numeric: tabular-nums; }
+      footer { margin-top: 28px; color: var(--soft); font-size: 12px; }
+      a { color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>procedural-machine-audio</h1>
+        <select id="lang" aria-label="Language" data-i18n-label="language"></select>
+      </header>
+      <p class="lead" data-i18n="lead"></p>
+      <canvas id="view" width="1600" height="700" data-i18n-label="canvas"></canvas>
+      <div class="row">
+        <button id="start" data-i18n="start"></button>
+        <button id="pause" class="ghost" disabled data-i18n="pause"></button>
+        <span class="stats" id="stats"></span>
+      </div>
+      <div class="controls">
+        <label><span data-i18n="speed"></span> <input id="speed" type="range" min="0.2" max="1.5" step="0.05" value="1" /><output></output></label>
+        <label><span data-i18n="airflow"></span> <input id="airflow" type="range" min="0" max="1" step="0.01" value="0.3" /><output></output></label>
+        <label><span data-i18n="events"></span> <input id="events" type="range" min="0" max="3" step="0.01" value="1.5" /><output></output></label>
+        <label><span data-i18n="reverb"></span> <input id="reverb" type="range" min="0" max="0.6" step="0.01" value="0.12" /><output></output></label>
+        <label><span data-i18n="master"></span> <input id="master" type="range" min="0" max="1" step="0.01" value="0.8" /><output></output></label>
+        <label><span data-i18n="style"></span>
+          <select id="style">
+            <option value="smooth" data-i18n="style.smooth"></option>
+            <option value="warm" data-i18n="style.warm"></option>
+            <option value="airy" data-i18n="style.airy"></option>
+            <option value="slow" data-i18n="style.slow"></option>
+          </select>
+          <span></span>
+        </label>
+      </div>
+      <footer>
+        <span data-i18n="by"></span> <a href="https://github.com/TENMALOG">TENMALOG</a> ·
+        <span data-i18n="extracted"></span>
+        <a href="https://qm4.rewrite.tw/" data-i18n="qm4"></a>
+      </footer>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
