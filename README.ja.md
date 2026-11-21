@@ -1,209 +1,339 @@
 <div align="center">
 
-<img src="docs/cast/NEO.svg" alt="" width="120">
-
 # procedural-machine-audio
 
 [English](README.md) · [繁體中文](README.zh-TW.md) · **日本語** · [Tiếng Việt](README.vi.md)
 
-**インタラクティブな機械とシミュレーションのためのプロシージャル・オーディオエンジン。**
+機械の音をリアルタイムに合成する Web Audio エンジンです。<br>
+クリック音、空気圧のヒス音、クランプ音、高速で動くアームの気流音を生成します。<br>
+サンプルプレーヤーではなくシンセサイザーです。すべての音をその場で生成し、オーディオファイルは使いません。
 
-クリック音、やわらかなエア音、空気圧のこもった音、すばやく動くアームの気流音 —— すべて Web Audio API でリアルタイム合成。音声ファイルは使いません。
+[ライブデモ](https://pma.rewrite.tw/) · [クイックスタート](#quick-start) · [API](#api-reference) · [しくみ](#how-the-airflow-works)
 
-**[▶ ライブデモ](https://pma.rewrite.tw/?lang=ja)** · ヘッドホン推奨
+[![MIT License](https://img.shields.io/badge/license-MIT-2b313a?style=flat-square)](LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-2b313a?style=flat-square)
+![Runtime dependencies: 0](https://img.shields.io/badge/runtime%20deps-0-2b313a?style=flat-square)
+![Status: 0.1 preview](https://img.shields.io/badge/status-0.1%20preview-2b313a?style=flat-square)
 
-<a href="https://pma.rewrite.tw/?lang=ja"><img alt="demo" src="https://img.shields.io/badge/demo-pma.rewrite.tw-2b313a?style=flat-square"></a> <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/code-MIT-2b313a?style=flat-square"></a> <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-2b313a?style=flat-square"> <img alt="dependencies" src="https://img.shields.io/badge/runtime%20deps-0-2b313a?style=flat-square">
+<a href="https://pma.rewrite.tw/"><img src="docs/media/demo.gif" alt="デモ：グリッド上のターゲット間を移動するガントリーヘッド" width="720"></a>
+
+<sub>この GIF は無音です。音は<a href="https://pma.rewrite.tw/">ライブデモ</a>、または<a href="docs/media/demo.mp4">音声付きの 12 秒クリップ</a>でお聴きください。ヘッドホンでの視聴を推奨します。</sub>
 
 </div>
 
----
+## 概要
 
-## <img src="docs/cast/SH-05.svg" alt="" width="34" height="34" align="absmiddle"> できること
+シミュレーション、デジタルツイン、機械の可視化には、音がないか、数秒ごとに繰り返される少数のサンプル音しか付いていないことがよくあります。このライブラリは、シミュレーションそのものから音を生成します。
 
-<table>
-<tr><td><b>イベント → 音</b></td><td>シミュレーションのイベントを音のレシピに割り当て、<code>emit()</code> するだけ。</td></tr>
-<tr><td><b>動き → 気流</b></td><td>動く部品の速度を毎フレーム渡すと、気流音がふくらみ、明るくなり、押し出されます。</td></tr>
-<tr><td><b>長時間聴くために</b></td><td>共振しない広帯域フィルタ、メロディなし、連打の統合、出力リミッター。何時間でも心地よく。</td></tr>
-<tr><td><b>小さい</b></td><td>実行時の依存パッケージはゼロ。TypeScript で型定義も完備。</td></tr>
-</table>
+- **イベントが音になります。** シミュレーションのイベント（`PART_PLACED`、`VACUUM_ON` など）を短い音の*レシピ*に結び付け、`emit()` を呼び出します。
+- **動きが気流になります。** 動いている部品の正規化された速度を毎フレーム渡すと、動きに合わせて気流音が盛り上がり、明るさを増し、押し出すような感触を生みます。
+- **聴き疲れしにくい設計です。** 広帯域で共鳴しないフィルター、メロディーを持たない音作り、ほぼ同一のトリガーの統合、出力リミッターにより、長時間のセッションでも耳障りな音や響きが生じません。
 
-このエンジンは <a href="https://qm4.rewrite.tw/?lang=ja">QM-4 · 機械の音</a> から切り出したものです。「聴く」ために作られた架空のマウンターの 3D シミュレーターです。ここのデモはあえて最小限にしてあり、完全な作品はそのサイトで体験できます。
+**主な特長：** 組み込みレシピ 12 種 · 気流スタイル 4 種 · プレーンなデータで書けるカスタムレシピ · 録音とオフラインレンダリング · 実行時の依存パッケージなし。
 
-## <img src="docs/cast/SH-03.svg" alt="" width="34" height="34" align="absmiddle"> 見てみる
+このエンジンは、聴くために作られた架空のピックアンドプレース機の 3D シミュレーター [QM-4 · 機械の音](https://qm4.rewrite.tw/) から切り出したものです。
 
-<p align="center"><a href="https://pma.rewrite.tw/?lang=ja"><img src="docs/media/demo.gif" alt="デモ：ガントリーのヘッドが目標の間を移動する" width="720"></a></p>
+## インストール
 
-<p align="center">GIF には音がありません。音を聴くなら：<a href="https://pma.rewrite.tw/?lang=ja">ライブデモ</a> · <a href="docs/media/demo.mp4">音つき 12 秒クリップ（MP4）</a>。</p>
-
-## <img src="docs/cast/CH-05.svg" alt="" width="34" height="34" align="absmiddle"> インストール
-
-npm にはまだ公開していません。GitHub から直接インストールできます（インストール時に自動でビルドされます）：
+このパッケージはまだ npm に公開されていません。GitHub からインストールしてください。インストール時に自動でコンパイルされます。
 
 ```bash
 npm install github:TENMALOG/procedural-machine-audio
 ```
 
-## <img src="docs/cast/CO-01.svg" alt="" width="34" height="34" align="absmiddle"> クイックスタート
+パッケージはインストール中にビルドされるため、Node.js 20 以降が必要です。
+
+ES モジュールとして、TypeScript の型定義付きで提供されます。Vite、webpack、esbuild などのバンドラー、またはインポートマップ経由で読み込んでください。CDN 向けのビルドは提供していません。
+
+<a id="quick-start"></a>
+## クイックスタート
+
+最小の動作例です。ボタンを押すとクリック音を 1 回再生します。ページに次のボタンを置きます。
+
+```html
+<button id="play">Play</button>
+```
+
+スクリプトは次のとおりです。
 
 ```ts
 import { MachineAudio } from 'procedural-machine-audio';
 
 const audio = new MachineAudio();
 
-// 1. 音はユーザー操作のあとでしか鳴らせません
-startButton.onclick = () => audio.start();
+document.querySelector('#play')!.addEventListener('click', async () => {
+  await audio.start(); // ブラウザーはユーザー操作の後でないとオーディオを許可しない
+  audio.play('click');
+});
+```
 
-// 2. シミュレーションのイベントを内蔵（または自作）のレシピに割り当てる
+ボタンを押すと、短くやわらかいクリック音が 1 回鳴ります。
+
+一般的な組み込み方では、シミュレーションのイベントを結び付け、毎フレーム気流を駆動します。`startButton`、`simulation`、`head`、`halfWidth` は、お使いのアプリケーション側の要素を表しています。
+
+```ts
+import { MachineAudio } from 'procedural-machine-audio';
+
+const audio = new MachineAudio();
+
+// 1. ユーザー操作からオーディオを開始する。
+startButton.addEventListener('click', () => void audio.start());
+
+// 2. シミュレーションのイベントを組み込み（または独自）のレシピに対応付ける。
 audio.bind('PART_PLACED', { recipe: 'click', gain: 0.9 });
 audio.bind('VACUUM_ON', 'hiss');
 
-simulation.on('PART_PLACED', (e) => audio.emit('PART_PLACED', { pan: e.x }));
+// pan には −1（左）… 1（右）を渡すので、座標を正規化する。
+simulation.on('PART_PLACED', (e) => audio.emit('PART_PLACED', { pan: e.x / halfWidth }));
 
-// 3. 動く部品の気流音を毎フレーム更新する
+// 3. 動いている部品の気流を、フレームごとに 1 回駆動する。
+//    airflow() にはコンテキストが必要なので、audio.ready が true になるまで待つ。
 function frame() {
-  const speed01 = head.speed / head.maxSpeed; // 0 = 静止、1 = 全速
+  const speed01 = head.speed / head.maxSpeed; // 0 = 静止、1 = 最高速度
   if (audio.ready) audio.airflow('head').update(speed01, 1);
   requestAnimationFrame(frame);
 }
+requestAnimationFrame(frame);
+
+// 4. ページが非表示の間は、オーディオ処理を一時停止する。
+document.addEventListener('visibilitychange', () => {
+  if (!audio.ready) return;
+  if (document.hidden) audio.suspend();
+  else audio.resume();
+});
 ```
 
-## <img src="docs/cast/ST-05.svg" alt="" width="34" height="34" align="absmiddle"> API
+<a id="api-reference"></a>
+## API リファレンス
 
 ### `new MachineAudio(options?)`
 
-| オプション | 既定値 |  |
+| オプション | 既定値 | 説明 |
 |---|---|---|
-| `context` | — | 既存の <code>AudioContext</code>／<code>OfflineAudioContext</code> を使う。なければ <code>start()</code> が作成します。 |
-| `latency` | `0.03` | 発音ごとに加える秒数。描画ループから予約した音が遅れて鳴らないようにします。 |
-| `maxVoices` | `48` | 同時に鳴らせるワンショットの上限。 |
-| `reverb` | `0.12` | 空間の量、0–1。 |
+| `context` | — | 既存の `AudioContext` または `OfflineAudioContext`。省略すると `start()` が作成します。 |
+| `latency` | `0.03` | すべてのトリガーで現在時刻に加算する秒数。描画ループからスケジュールした音の開始が遅れないようにします。 |
+| `maxVoices` | `48` | 同時に鳴らせるワンショットの最大数。上限に達すると、最も古いボイスが停止されます。 |
+| `reverb` | `0.12` | ルームリバーブの量。0（ドライ）から 1 まで。 |
+| `noiseSeconds` | `5` | 共有ノイズバッファの長さ（秒）。 |
 
-| メソッド | |
+### メソッドとプロパティ
+
+| メンバー | 戻り値 | 説明 |
+|---|---|---|
+| `start()` | `Promise<void>` | オーディオコンテキストを作成または再開します。クリックまたはタップのハンドラー内で呼び出してください。iOS ではメディア再生も要求し、サイレントスイッチでページが消音されないようにします（[ブラウザーサポート](#browser-support)を参照）。 |
+| `play(name, options?)` | `boolean` | レシピを再生します。音がスキップされた場合は `false` を返します。スキップされるのは、コンテキストがまだない場合、未知のレシピの場合、ゲインが 0 の場合、または数ミリ秒前の同じ `key` のトリガーと統合された場合です。 |
+| `bind(event, binding)` | `void` | イベント名をレシピ名、または `Binding` オブジェクト `{ recipe, gain?, category? }` に対応付けます。 |
+| `emit(event, options?)` | `boolean` | `event` に結び付けられたレシピを再生します。呼び出しごとの `gain` は結び付けられたゲインに乗算されます。呼び出しで `category` を指定しない限り、バインディングの `category` が使われます。 |
+| `define(name, recipe)` | `void` | カスタムレシピを登録します。組み込みレシピを置き換えることもできます。 |
+| `airflow(id?, options?)` | `AirflowVoice` | `id`（既定値は `'default'`）という名前の気流ボイスを返し、初回使用時に作成します。コンテキストがまだない場合は**例外をスロー**するため、`start()` の後に呼び出すか、`ready` を確認してください。オプションは[気流ボイス](#airflow-voices)を参照してください。 |
+| `setLevel(bus, value)` / `getLevel(bus)` | `void` / `number` | `'master'`（既定値 `0.8`）、`'events'`（`1.5`）、`'airflow'`（`0.3`）の各バスのリニアレベル。 |
+| `setReverb(amount)` | `void` | リバーブ量を変更します。0〜1 の範囲に丸められます。 |
+| `output` | `AudioNode \| null` | リミッターの後段にある最終ノード。コンテキストができるまでは `null` です。すでにスピーカーに接続されています。可視化や録音には、`AnalyserNode` や `MediaStreamAudioDestinationNode` を接続してください。 |
+| `context` | `BaseAudioContext \| null` | 使用中のオーディオコンテキスト。 |
+| `ready` | `boolean` | 再生先のコンテキストができると `true` になります。 |
+| `stats()` | object | デバッグ用の `{ voices, nodes, started, aggregated, stolen, released }`。 |
+| `recipes` | object | 現在登録されているレシピ（名前をキーとするオブジェクト）。 |
+| `suspend()` / `resume()` | `Promise<void>` | オーディオ処理の一時停止と再開。たとえばページが非表示のときに使います。 |
+| `stopAll()` / `dispose()` | `void` | すべてのワンショットを停止し、すべての気流ボイスをフェードアウトします。／すべてのノードを解放し、コンテキストを閉じます。 |
+
+`play()` と `emit()` のオプション：
+
+| オプション | 説明 |
 |---|---|
-| <code>start()</code> | audio context を作成／再開します。クリックやタップのハンドラ内で呼んでください。iPhone のサイレントスイッチがオンでも音が出るようにします。 |
-| <code>play(name, { when?, delay?, gain?, pan?, key?, category? })</code> | レシピを再生します。スキップされた場合（未知、無音、数ミリ秒前の同じ発音と統合）は <code>false</code>。 |
-| <code>bind(event, recipe &#124; { recipe, gain?, category? })</code>／<code>emit(event, options?)</code> | シミュレーションのイベントをレシピに割り当てます。 |
-| <code>define(name, recipe)</code> | 独自のレシピを追加します。 |
-| <code>airflow(id, { style?, pan? })</code> | 名前付きの気流ボイスを取得／作成します。毎フレーム <code>.update(speed01, level)</code>、<code>.setStyle()</code> で音色変更、<code>.silence()</code> で停止。 |
-| <code>setLevel('master' &#124; 'events' &#124; 'airflow', value)</code>、<code>setReverb(amount)</code> | ミックス。 |
-| <code>output</code> | 最終ノード（リミッターの後）。アナライザーや <code>MediaRecorder</code> に接続できます。 |
-| <code>suspend()</code>／<code>resume()</code>／<code>stopAll()</code>／<code>dispose()</code> | ライフサイクル。 |
+| `when` | 開始するコンテキスト上の絶対時刻。`delay` より優先されます。 |
+| `delay` | 現在からの秒数（`latency` を加算）。 |
+| `gain` | リニアのゲイン乗数。 |
+| `pan` | ステレオ位置。−1（左）から 1（右）まで。 |
+| `key` | 約 6 ms 以内に同じキーで発生したトリガーは 1 つに統合されます。既定値はレシピ名です。 |
+| `category` | 同じカテゴリーのボイスは 14 までに制限されます（0.1 では `MachineAudio` 経由で設定できません）。これにより、頻繁に鳴る音がプール全体を使い切ることを防ぎます。既定値はレシピ名です。 |
 
-### 内蔵レシピ
+### 注意すべき動作
+
+- **どこでも構築でき、開始はブラウザーで行います。** `new MachineAudio()` はサーバーサイドレンダリング中でも安全に呼び出せます。`AudioContext` が存在しない環境では `start()` が例外をスローします。
+- **繰り返しごとにわずかに変化します。** `MachineAudio` 経由で再生されるすべてのワンショットは、フィルターとオシレーターの開始周波数が最大 ±6% の範囲でランダムにデチューンされるため、繰り返しのトリガーが同一の音になりません。
+- **ボイススティールはなめらかです。** 上限に達すると、最も古いボイスは途中で切られず、数ミリ秒かけてフェードアウトします。
+- **`dispose()` はコンテキストを閉じます。** コンテキストが `AudioContext` の場合に該当し、`context` 経由で渡したものも含まれます。
+- **気流ボイスは保持されます。** 各 `id` のボイスは `audio.dispose()` まで残ります。その id を再び使う場合は、ボイス自身の `dispose()` を呼ばないでください。動く部品ごとに 1 つの id を使い回し、停止時は `silence()` を呼んでください。移動のたびに新しい id を作らないでください。
+
+<a id="airflow-voices"></a>
+### 気流ボイス
+
+`airflow(id, options)` のオプションです。ボイスの作成時にのみ使用されます。
+
+| オプション | 既定値 | 説明 |
+|---|---|---|
+| `style` | `AIRFLOW_STYLES.smooth` | `AirflowStyle` オブジェクト。組み込みスタイルのいずれか、または独自のもの（組み込みスタイルを展開してフィールドを変更）を指定します。 |
+| `pan` | — | 固定のステレオ位置。−1 から 1 まで（`play()` と異なり、範囲への丸めは行われません）。 |
+| `bufferLength` | `524288`（2¹⁹） | ループバッファの長さ（サンプル数）。2 のべき乗にします。短いほど構築が速く、長いほどループが目立ちにくくなります。 |
+| `trim` | `0.56` | 出力トリム。`update()` の `level` と乗算されます。 |
+
+| メンバー | 説明 |
+|---|---|
+| `update(speed01, level, at?)` | フレームごとに 1 回呼び出します。`speed01` は正規化された速度（0〜1）、`level` はリニアゲインで、`trim` と乗算されます。既定のバランスにするには `1` を渡し、全体のミックスには `setLevel('airflow', …)` を使います。 |
+| `setStyle(style)` | 別のスタイル（たとえば `AIRFLOW_STYLES.warm`）に切り替えます。ボイスは無音から再開し、次の `update()` に追従します。 |
+| `silence(at?)` | ボイスをフェードアウトします。たとえば機械が停止したときに使います。 |
+| `dispose()` | ボイスを停止し、接続を解除します。 |
+
+組み込みスタイルは `AIRFLOW_STYLES` としてエクスポートされています。`smooth`（既定、標準）、`warm`（より暗くやわらかい音）、`airy`（より軽い音）、`slow`（ゆっくり盛り上がる）。
+
+```ts
+import { AIRFLOW_STYLES } from 'procedural-machine-audio';
+
+audio.airflow('head', { style: AIRFLOW_STYLES.warm, pan: -0.3 });
+```
+
+### 組み込みレシピ
 
 `click` · `tap` · `lift` · `hiss` · `leak` · `puff` · `feed` · `clamp` · `unclamp` · `shutter` · `swap` · `settle`
 
-### 気流の音色
+レシピ自体は `RECIPES`（名前の型は `BuiltInRecipe`）としてエクスポートされているため、出発点としてコピーして使えます。
 
-<code>smooth</code>（既定）· <code>warm</code>（暗め・やわらか）· <code>airy</code>（軽め）· <code>slow</code>（ゆっくりしたうねり）
+## カスタムレシピ
 
-## <img src="docs/cast/RW-01.svg" alt="" width="34" height="34" align="absmiddle"> 独自のレシピを書く
-
-レシピはただのデータで、レイヤーの並びです。各レイヤーはバンドパスしたノイズか短いトーンで、それぞれにエンベロープがあります。
+レシピはプレーンなデータで、レイヤーの配列です。レイヤーはバンドパスをかけたノイズか短いトーンのいずれかで、それぞれ独自のエンベロープを持ちます。
 
 ```ts
-audio.define('latch', [
+import type { Recipe } from 'procedural-machine-audio';
+
+const latch: Recipe = [
   { kind: 'noise', noise: 'pink', freq: 1400, q: 0.8, lowpass: 3500, gain: 0.5, attack: 0.004, decay: 0.04 },
   { kind: 'noise', noise: 'brown', freq: 220, q: 0.7, lowpass: 600, gain: 0.25, attack: 0.008, decay: 0.12, delay: 0.03 },
-]);
+];
+
+audio.define('latch', latch);
 audio.play('latch');
 ```
 
-心地よい音を保つコツ：<code>q</code> は低め（約 0.6–1.5）にし、<code>lowpass</code> を加え、ノイズレイヤーには数ミリ秒の <code>attack</code> を与え、長いトーンのレイヤーは避けること。
+| フィールド | ノイズレイヤー | トーンレイヤー | 説明 |
+|---|---|---|---|
+| `kind` | 必須 | 必須 | `'noise'` または `'tone'`。 |
+| `noise` | 必須 | — | `'white'`、`'pink'`、`'brown'` のいずれか。 |
+| `freq` | 必須 | 必須 | バンドパスの中心周波数（ノイズ）またはオシレーターの周波数（トーン）。単位は Hz。 |
+| `q` | 必須 | — | バンドパスの Q。 |
+| `wave` | — | 任意 | オシレーターの種類。既定値は `'sine'`。 |
+| `gain` | 必須 | 必須 | レイヤーのピークゲイン。 |
+| `attack` | 必須 | 任意 | 無音からピークまでの秒数（トーンの既定値は `0.001`）。 |
+| `decay` | 必須 | 必須 | ピークから −80 dB までの秒数。聴き取れるのはおおよそ最初の 3 分の 1 です。 |
+| `sweepTo` | 任意 | 任意 | グライド先の周波数（Hz）。ノイズではバンドパスの中心（`attack` + `decay` の間）、トーンではピッチ（`decay` の間）です。 |
+| `lowpass` | 任意 | 任意 | レイヤーの後段に置くローパスフィルター。単位は Hz。 |
+| `delay` | 任意 | 任意 | トリガー時刻からのオフセット（秒）。 |
 
-## <img src="docs/cast/CH-02.svg" alt="" width="34" height="34" align="absmiddle"> 低レベルの部品
+長時間のセッションでも心地よい音を保つには、`q` を低く（0.6〜1.5 程度）し、`lowpass` を加え、ノイズレイヤーには数ミリ秒の `attack` を与え、長く続くトーンのレイヤーは避けてください。
 
-エンジンが使う部品はすべてエクスポートされているので、独自の構成も組めます：
+## 録音とオフラインレンダリング
 
-| エクスポート | |
+再生中の音を録音するには、`output` を `MediaStreamAudioDestinationNode` に接続し、`MediaRecorder` を使います。
+
+```ts
+const ctx = audio.context as AudioContext; // リアルタイムのコンテキスト（start() の後）
+const dest = ctx.createMediaStreamDestination();
+audio.output!.connect(dest);
+
+const recorder = new MediaRecorder(dest.stream);
+const chunks: Blob[] = [];
+recorder.ondataavailable = (e) => chunks.push(e.data);
+recorder.onstop = () => {
+  const file = new Blob(chunks, { type: recorder.mimeType }); // 例：audio/webm
+};
+recorder.start();
+```
+
+スピーカーを使わずにリアルタイムより高速にレンダリングするには（たとえばテストでレシピを解析する場合や、音を書き出す場合）、`OfflineAudioContext` を渡します。この場合、`start()` は不要です。
+
+```ts
+const ctx = new OfflineAudioContext(2, 48000 * 2, 48000); // 2 秒、ステレオ
+const audio = new MachineAudio({ context: ctx });
+
+audio.play('click', { when: 0.1 });
+audio.play('hiss', { when: 0.5 });
+
+const buffer = await ctx.startRendering(); // AudioBuffer
+```
+
+## ビルディングブロック
+
+エンジン内部の部品もエクスポートされているため、独自のシグナルグラフを組み立てられます。主なものは次のとおりです。
+
+| エクスポート | 説明 |
 |---|---|
-| <code>renderRecipe(ctx, destination, noise, recipe, { when, gain })</code> | レシピを任意のノードに予約します。 |
-| <code>AirflowVoice</code>、<code>getAirflowBuffers</code>、<code>AIRFLOW_STYLES</code> | 気流シンセサイザーと、FFT で整形したループバッファ。 |
-| <code>createNoiseBank(ctx, seconds, seed)</code> | シード指定可能で、継ぎ目なくループするホワイト／ピンク／ブラウンノイズ。 |
-| <code>createRoomImpulse(ctx)</code> | <code>ConvolverNode</code> 用の短くやわらかな空間インパルス応答。 |
-| <code>VoicePool</code> | ボイス数の上限、古いボイスの奪取、連続イベントの統合。 |
-| <code>EventScheduler</code> | シミュレーション用の決定的なイベントキュー（時刻、次に追加順）。 |
-| <code>planMove</code>、<code>sampleMove</code> | 台形／S 字カーブの移動プロファイル。もっともらしい速度で気流を動かせます。 |
+| `renderRecipe(ctx, destination, noise, recipe, { when, gain?, jitter?, random? })` | 任意の `AudioNode` に対してレシピをスケジュールします。`jitter` はトリガーごとのランダムなデチューン量です（既定値 `0.06` = ±6%、`0` = 毎回同一）。`random` は `Math.random` の代わりに使われ、再現可能な出力を得られます。 |
+| `RECIPES` | 組み込みレシピ（データ）。 |
+| `AirflowVoice`, `getAirflowBuffers`, `AIRFLOW_STYLES` | 気流シンセサイザーと、FFT で成形したループバッファ。 |
+| `createNoiseBank(ctx, seconds?, seed?)` | シード付きで、継ぎ目なくループするホワイト、ピンク、ブラウンノイズ（既定値：`5` 秒、シード `12345`）。 |
+| `createRoomImpulse(ctx)` | `ConvolverNode` 用の、短くやわらかいルームインパルス応答。 |
+| `VoicePool` | ボイス数の上限、最古ボイスのスティール、ほぼ同一のトリガーの統合。 |
+| `EventScheduler` | 時刻順、同時刻なら挿入順に並べる、決定論的なイベントキュー。 |
+| `planMove`, `sampleMove` | 台形およびS字カーブの動作プロファイル。もっともらしい速度で気流を駆動するために使います（下記の例を参照）。 |
+| `unlockSilentSwitch`, `pauseSilentSwitch` | `start()` と `suspend()` が使う、iOS のサイレントスイッチ対応。 |
 
-## <img src="docs/cast/GR-04.svg" alt="" width="34" height="34" align="absmiddle"> 気流音のしくみ
+TypeScript の型も併せてエクスポートされています。`MachineAudioOptions`、`PlayOptions`、`Binding`、`LevelName`、`Recipe`、`Layer`、`NoiseLayer`、`ToneLayer`、`AirflowStyle`、`AirflowOptions`、`MotionLimits`、`MoveProfile`、`MoveSample` などです。詳しくは [`src/index.ts`](src/index.ts) を参照してください。
 
-2 層のループノイズを逆 FFT で一度だけ作るので、継ぎ目なくループします：
+シミュレーションが動きをモデル化していない場合は、`planMove` を使うと、気流に与えるリアルな速度カーブを得られます。
 
-- <b>ボディ</b>：広い周波数カーブを持つノイズ。音量は速度の 2 乗に従い、その下に小さな常時の気流があり、スペクトル全体も速度とともに上へ移動します。
-- <b>プッシュ</b>：ガウス形の低域ノイズ帯（共振ではありません）で、中心周波数が速度とともに上がります。ボディより速いエンベロープなので、動き出すたびにやわらかな「押し」が入ります。
+```ts
+import { planMove, sampleMove } from 'procedural-machine-audio';
 
-高域のシェルフはボディより少し遅れて開き（「空気感」）、音像は左右にゆるやかに揺れます。オシレーターも共振フィルタも使わないので、うなりや笛のような音は出ません。
+const limits = { vmax: 1400, amax: 14000 };        // units/s と units/s²
+const move = planMove(distance, limits, 'scurve'); // または 'trapezoid'
 
-## <img src="docs/cast/DU-03.svg" alt="" width="34" height="34" align="absmiddle"> 開発
+// フレームごとに。t = 動作開始からの経過秒数：
+const { s, v } = sampleMove(move, t);              // 移動距離、現在の速度
+audio.airflow('head').update(v / limits.vmax, 1);
+```
+
+<a id="how-the-airflow-works"></a>
+## 気流のしくみ
+
+```
+one-shots ─┐            ┌─ dry ─────────┐
+           ├─ mix ──────┤               ├─ master ─ limiter ─ output
+airflow ───┘            └─ room reverb ─┘
+```
+
+各気流ボイスは、ループする 2 つのノイズレイヤーを再生します。どちらも逆 FFT で一度だけ生成されるため、継ぎ目なくループします。
+
+- **ボディ**：広いスペクトル曲線を持つノイズです。レベルは、静かな一定の下地の上で速度の 2 乗に従って変化し、速度が上がるにつれてスペクトル全体が上方へ滑らかに移動します。
+- **プッシュ**：低周波ノイズのガウス帯域（共鳴ではありません）で、中心は速度とともに上昇します。エンベロープの反応はボディより速く、各動作の始まりでやわらかい押し出し感を生みます。
+
+ハイシェルフはボディからわずかに遅れて開き（「空気感」）、ステレオイメージは速度に応じて穏やかに揺れます。気流の経路にはオシレーターも共鳴フィルターもないため、響きや笛のような音は生じません。
+
+<a id="browser-support"></a>
+## ブラウザーサポート
+
+このライブラリには Web Audio API（`AudioContext`）が必要で、ブラウザー間での体系的なテストはまだ行われていません。
+
+- `StereoPannerNode` が利用できない環境では、`pan` は無視されます。
+- iPhone と iPad では、Web Audio は既定でサイレントスイッチによって消音されます。`start()` は、Safari が対応している環境では `navigator.audioSession.type` を `'playback'` に設定し、無音のループするメディア要素も再生します。これにより、ページがメディア再生として扱われます。`suspend()` はその要素を一時停止し、`resume()` は再開します。
+
+## 制限事項
+
+- ワンショットは、フィルターをかけたノイズと短いトーンだけで構成されます。このライブラリはオーディオファイルを再生しません。
+- 空間（3D）の定位はなく、配置はステレオパンニングに限られます。
+- 気流のループバッファは、ボイスまたはスタイルを初めて使うときにメインスレッドで生成されます。既定のバッファ長では、体感できる程度の時間がかかることがあります。
+
+## 開発
 
 ```bash
 npm install
-npm run dev        # http://localhost:5320 でデモを開く
-npm test           # ユニットテスト
-npm run build      # ライブラリ → dist/
-npm run build:demo # 静的デモ → dist-demo/
+npm run dev         # http://localhost:5320 でデモを起動
+npm test            # 単体テスト（Vitest）
+npm run typecheck   # TypeScript、strict モード
+npm run build       # ライブラリ → dist/
+npm run build:demo  # 静的デモ → dist-demo/
 ```
 
-Node.js 20 以上が必要です。
+Node.js 20 以降が必要です。
 
-## <img src="docs/cast/ST-03.svg" alt="" width="34" height="34" align="absmiddle"> ステータス
+## プロジェクトの状況
 
-<code>0.1.0</code>：初期段階で、API は今後変わる可能性があります。
+バージョン `0.1.0` は初期プレビューです。1.0 より前に API が変更される可能性があります。破壊的変更は、タグ付きの [GitHub リリース](https://github.com/TENMALOG/procedural-machine-audio/releases)で告知します。
 
-## <img src="docs/cast/DU-04.svg" alt="" width="34" height="34" align="absmiddle"> ライセンス
+## コントリビューション
 
-コード：[MIT](LICENSE) © 2026 TENMALOG。
+バグ報告や提案は [Issues](https://github.com/TENMALOG/procedural-machine-audio/issues) で歓迎します。プルリクエストを開く前に、`npm test` と `npm run typecheck` を実行してください。
 
-<code>docs/cast/</code> のキャラクターイラストは TENMALOG による假想社のオリジナルキャラクターで、MIT ライセンスの対象<b>外</b>です。すべての権利を留保します（[詳細](docs/cast/NOTICE.md)）。QM-4 のサイト本体、3D モデル、アートワーク、調整済みのサウンドも別の作品であり、含まれません。
+## ライセンス
 
----
+[MIT](LICENSE) © 2026 TENMALOG.
 
-<div align="center">
-
-### 假想社のメンバー
-
-<img src="docs/cast/NEO.svg" alt="NEO" width="44" height="44">
-<img src="docs/cast/ZK.svg" alt="ZK" width="44" height="44">
-<img src="docs/cast/RW-01.svg" alt="RW-01" width="44" height="44">
-<img src="docs/cast/RW-02.svg" alt="RW-02" width="44" height="44">
-<img src="docs/cast/RW-03.svg" alt="RW-03" width="44" height="44">
-<img src="docs/cast/RW-04.svg" alt="RW-04" width="44" height="44">
-<img src="docs/cast/RW-05.svg" alt="RW-05" width="44" height="44">
-<img src="docs/cast/DU-01.svg" alt="DU-01" width="44" height="44">
-<img src="docs/cast/DU-02.svg" alt="DU-02" width="44" height="44">
-<img src="docs/cast/DU-03.svg" alt="DU-03" width="44" height="44">
-<img src="docs/cast/DU-04.svg" alt="DU-04" width="44" height="44">
-<img src="docs/cast/DU-05.svg" alt="DU-05" width="44" height="44">
-<img src="docs/cast/CO-01.svg" alt="CO-01" width="44" height="44">
-<img src="docs/cast/CO-02.svg" alt="CO-02" width="44" height="44">
-<img src="docs/cast/CO-03.svg" alt="CO-03" width="44" height="44">
-<img src="docs/cast/CO-04.svg" alt="CO-04" width="44" height="44">
-<img src="docs/cast/CO-05.svg" alt="CO-05" width="44" height="44">
-<img src="docs/cast/CH-01.svg" alt="CH-01" width="44" height="44">
-<img src="docs/cast/CH-02.svg" alt="CH-02" width="44" height="44">
-<img src="docs/cast/CH-03.svg" alt="CH-03" width="44" height="44">
-<img src="docs/cast/CH-04.svg" alt="CH-04" width="44" height="44">
-<img src="docs/cast/CH-05.svg" alt="CH-05" width="44" height="44">
-<img src="docs/cast/ST-01.svg" alt="ST-01" width="44" height="44">
-<img src="docs/cast/ST-02.svg" alt="ST-02" width="44" height="44">
-<img src="docs/cast/ST-03.svg" alt="ST-03" width="44" height="44">
-<img src="docs/cast/ST-04.svg" alt="ST-04" width="44" height="44">
-<img src="docs/cast/ST-05.svg" alt="ST-05" width="44" height="44">
-<img src="docs/cast/GR-01.svg" alt="GR-01" width="44" height="44">
-<img src="docs/cast/GR-02.svg" alt="GR-02" width="44" height="44">
-<img src="docs/cast/GR-03.svg" alt="GR-03" width="44" height="44">
-<img src="docs/cast/GR-04.svg" alt="GR-04" width="44" height="44">
-<img src="docs/cast/GR-05.svg" alt="GR-05" width="44" height="44">
-<img src="docs/cast/SH-01.svg" alt="SH-01" width="44" height="44">
-<img src="docs/cast/SH-02.svg" alt="SH-02" width="44" height="44">
-<img src="docs/cast/SH-03.svg" alt="SH-03" width="44" height="44">
-<img src="docs/cast/SH-04.svg" alt="SH-04" width="44" height="44">
-<img src="docs/cast/SH-05.svg" alt="SH-05" width="44" height="44">
-
-<sub>TENMALOG のオリジナルキャラクターたちが、この README にお付き合いします。</sub>
-
-<br><br>
-
-制作：<b>TENMALOG</b> · <a href="https://qm4.rewrite.tw/?lang=ja">QM-4</a> · <a href="https://pma.rewrite.tw/?lang=ja">ライブデモ</a>
-
-</div>
+QM-4 のウェブサイト、その 3D モデル、アートワーク、調整済みのサウンド設定は別個の著作物であり、このリポジトリには含まれません。

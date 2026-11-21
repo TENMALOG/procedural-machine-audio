@@ -1,209 +1,339 @@
 <div align="center">
 
-<img src="docs/cast/NEO.svg" alt="" width="120">
-
 # procedural-machine-audio
 
 [English](README.md) · **繁體中文** · [日本語](README.ja.md) · [Tiếng Việt](README.vi.md)
 
-**給互動機械與模擬用的程序式音效引擎。**
+一個以 Web Audio 實作、即時合成機器聲音的引擎：<br>
+喀答聲、氣動嘶聲、夾具動作聲，以及快速移動的機械臂所帶起的氣流聲。<br>
+它是合成器，而非取樣播放器：所有聲音皆即時產生，不使用任何音訊檔案。
 
-喀聲、輕柔的嘶聲、氣壓的悶響、快速移動手臂帶起的氣流聲 —— 全部用 Web Audio API 即時合成，沒有任何音檔。
+[線上展示](https://pma.rewrite.tw/) · [快速開始](#quick-start) · [API](#api-reference) · [運作原理](#how-the-airflow-works)
 
-**[▶ 線上示範](https://pma.rewrite.tw/?lang=zh)** · 建議戴上耳機
+[![MIT License](https://img.shields.io/badge/license-MIT-2b313a?style=flat-square)](LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-2b313a?style=flat-square)
+![Runtime dependencies: 0](https://img.shields.io/badge/runtime%20deps-0-2b313a?style=flat-square)
+![Status: 0.1 preview](https://img.shields.io/badge/status-0.1%20preview-2b313a?style=flat-square)
 
-<a href="https://pma.rewrite.tw/?lang=zh"><img alt="demo" src="https://img.shields.io/badge/demo-pma.rewrite.tw-2b313a?style=flat-square"></a> <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/code-MIT-2b313a?style=flat-square"></a> <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-2b313a?style=flat-square"> <img alt="dependencies" src="https://img.shields.io/badge/runtime%20deps-0-2b313a?style=flat-square">
+<a href="https://pma.rewrite.tw/"><img src="docs/media/demo.gif" alt="展示：龍門架機頭在格線上的目標點之間移動" width="720"></a>
+
+<sub>此 GIF 無聲。請至<a href="https://pma.rewrite.tw/">線上展示</a>或觀看<a href="docs/media/demo.mp4">12 秒有聲短片</a>收聽。建議配戴耳機。</sub>
 
 </div>
 
----
+## 為何需要它
 
-## <img src="docs/cast/SH-05.svg" alt="" width="34" height="34" align="absmiddle"> 它能做什麼
+模擬、數位孿生與機器視覺化通常沒有聲音，或只搭配少量每隔數秒就重複一次的取樣。本程式庫直接由模擬本身產生聲音：
 
-<table>
-<tr><td><b>事件 → 聲音</b></td><td>把模擬的事件對應到聲音配方，然後 <code>emit()</code>。</td></tr>
-<tr><td><b>動作 → 氣流</b></td><td>每一幀傳入移動部件的速度，氣流聲會跟著鼓起、變亮、往前推。</td></tr>
-<tr><td><b>為長時間聆聽而做</b></td><td>寬頻、不共振的濾波器，沒有旋律；連發事件會合併，輸出端有限幅器。聽幾個小時也不刺耳。</td></tr>
-<tr><td><b>很小</b></td><td>沒有任何執行期相依套件。TypeScript 撰寫，型別完整。</td></tr>
-</table>
+- **事件化為聲音。** 將模擬事件（`PART_PLACED`、`VACUUM_ON` 等）綁定到簡短的聲音*配方*，再呼叫 `emit()` 即可。
+- **動作化為氣流。** 每個影格傳入移動零件的正規化速度，氣流便會隨每次移動而增強、變亮並產生推送感。
+- **為避免聽覺疲勞而設計。** 寬頻、非共振的濾波器、不含旋律、合併幾乎相同的觸發，以及輸出限幅器，讓長時間使用也不會出現刺耳或帶有餘響的聲音。
 
-這個引擎取自 <a href="https://qm4.rewrite.tw/?lang=zh">QM-4 · 機器的聲音</a>，一個為了「聽」而做的虛構打件機 3D 模擬器。這裡的示範刻意做得很簡單；完整的作品請看那個網站。
+**概覽：** 12 種內建配方 · 4 種氣流風格 · 以純資料定義自訂配方 · 支援錄音與離線算圖 · 零執行階段相依套件。
 
-## <img src="docs/cast/SH-03.svg" alt="" width="34" height="34" align="absmiddle"> 看看它
+此引擎擷取自 [QM-4 · 機器的聲音](https://qm4.rewrite.tw/)，這是一款以聆聽為目的、模擬虛構取放機台的 3D 模擬器。
 
-<p align="center"><a href="https://pma.rewrite.tw/?lang=zh"><img src="docs/media/demo.gif" alt="示範：移動頭在目標之間移動" width="720"></a></p>
+## 安裝
 
-<p align="center">GIF 沒有聲音。想聽聲音：<a href="https://pma.rewrite.tw/?lang=zh">線上示範</a> · <a href="docs/media/demo.mp4">12 秒有聲片段（MP4）</a>。</p>
-
-## <img src="docs/cast/CH-05.svg" alt="" width="34" height="34" align="absmiddle"> 安裝
-
-還沒有發布到 npm，請直接從 GitHub 安裝（安裝時會自動建置）：
+此套件尚未發布至 npm。請從 GitHub 安裝；安裝過程中會自行編譯：
 
 ```bash
 npm install github:TENMALOG/procedural-machine-audio
 ```
 
-## <img src="docs/cast/CO-01.svg" alt="" width="34" height="34" align="absmiddle"> 快速開始
+由於套件在安裝時進行建置，因此需要 Node.js 20 或更新版本。
+
+套件以 ES 模組形式提供，並附帶 TypeScript 型別定義。請透過 Vite、webpack、esbuild 等打包工具或 import map 匯入；不提供 CDN 版本。
+
+<a id="quick-start"></a>
+## 快速開始
+
+最精簡的可執行範例，會在按下按鈕時播放一次喀答聲。頁面上放一個按鈕：
+
+```html
+<button id="play">Play</button>
+```
+
+腳本如下：
 
 ```ts
 import { MachineAudio } from 'procedural-machine-audio';
 
 const audio = new MachineAudio();
 
-// 1. 聲音只能在使用者操作之後開始
-startButton.onclick = () => audio.start();
+document.querySelector('#play')!.addEventListener('click', async () => {
+  await audio.start(); // 瀏覽器僅允許在使用者操作之後播放音訊
+  audio.play('click');
+});
+```
 
-// 2. 把模擬的事件對應到內建（或自訂）的配方
+按下按鈕後，會播放一聲簡短而柔和的喀答聲。
+
+典型的整合方式是綁定模擬事件，並在每個影格驅動氣流。`startButton`、`simulation`、`head` 與 `halfWidth` 代表你自己應用程式中的對應物件：
+
+```ts
+import { MachineAudio } from 'procedural-machine-audio';
+
+const audio = new MachineAudio();
+
+// 1. 由使用者操作啟動音訊。
+startButton.addEventListener('click', () => void audio.start());
+
+// 2. 將模擬事件對應到內建（或自訂）的配方。
 audio.bind('PART_PLACED', { recipe: 'click', gain: 0.9 });
 audio.bind('VACUUM_ON', 'hiss');
 
-simulation.on('PART_PLACED', (e) => audio.emit('PART_PLACED', { pan: e.x }));
+// pan 的範圍為 −1（左）… 1（右），因此請將座標正規化。
+simulation.on('PART_PLACED', (e) => audio.emit('PART_PLACED', { pan: e.x / halfWidth }));
 
-// 3. 每一幀驅動移動部件的氣流聲
+// 3. 每個影格驅動一次移動零件的氣流。
+//    airflow() 需要音訊情境（context），因此請等到 audio.ready 為 true。
 function frame() {
   const speed01 = head.speed / head.maxSpeed; // 0 = 靜止，1 = 全速
   if (audio.ready) audio.airflow('head').update(speed01, 1);
   requestAnimationFrame(frame);
 }
+requestAnimationFrame(frame);
+
+// 4. 頁面隱藏時暫停音訊處理。
+document.addEventListener('visibilitychange', () => {
+  if (!audio.ready) return;
+  if (document.hidden) audio.suspend();
+  else audio.resume();
+});
 ```
 
-## <img src="docs/cast/ST-05.svg" alt="" width="34" height="34" align="absmiddle"> API
+<a id="api-reference"></a>
+## API 參考
 
 ### `new MachineAudio(options?)`
 
-| 選項 | 預設 |  |
+| 選項 | 預設值 | 說明 |
 |---|---|---|
-| `context` | — | 使用現有的 <code>AudioContext</code>／<code>OfflineAudioContext</code>；沒有的話由 <code>start()</code> 建立。 |
-| `latency` | `0.03` | 每次觸發都加上的秒數，讓從畫面更新迴圈排程的聲音不會遲到。 |
-| `maxVoices` | `48` | 同時發聲的一次性聲音上限。 |
-| `reverb` | `0.12` | 空間感，0–1。 |
+| `context` | — | 既有的 `AudioContext` 或 `OfflineAudioContext`。若省略，則由 `start()` 建立。 |
+| `latency` | `0.03` | 每次觸發時加到目前時間上的秒數，確保由算圖迴圈排程的聲音不會延遲開始。 |
+| `maxVoices` | `48` | 同時播放的單發音效數量上限。達到上限時，會停止最舊的發聲單元。 |
+| `reverb` | `0.12` | 房間殘響量，範圍為 0（乾聲）至 1。 |
+| `noiseSeconds` | `5` | 共用雜訊緩衝區的長度，單位為秒。 |
 
-| 方法 | |
+### 方法與屬性
+
+| 成員 | 回傳值 | 說明 |
+|---|---|---|
+| `start()` | `Promise<void>` | 建立或恢復音訊情境。請在點擊或觸控的處理函式內呼叫。在 iOS 上，它也會要求媒體播放，使靜音開關不會讓頁面靜音（參見[瀏覽器支援](#browser-support)）。 |
+| `play(name, options?)` | `boolean` | 播放一個配方。若聲音被略過則回傳 `false`：尚無音訊情境、未知的配方、增益為零，或與數毫秒前具有相同 `key` 的觸發合併。 |
+| `bind(event, binding)` | `void` | 將事件名稱對應到配方名稱，或對應到 `Binding` 物件 `{ recipe, gain?, category? }`。 |
+| `emit(event, options?)` | `boolean` | 播放綁定到 `event` 的配方。每次呼叫的 `gain` 會與綁定的增益相乘；除非呼叫時另行指定，否則使用綁定的 `category`。 |
+| `define(name, recipe)` | `void` | 註冊自訂配方，或取代內建配方。 |
+| `airflow(id?, options?)` | `AirflowVoice` | 回傳名為 `id`（預設為 `'default'`）的氣流發聲單元，首次使用時建立。若尚無音訊情境則會**擲出例外**，因此請在 `start()` 之後呼叫，或先檢查 `ready`。選項請參見[氣流發聲單元](#airflow-voices)。 |
+| `setLevel(bus, value)` / `getLevel(bus)` | `void` / `number` | `'master'`（預設 `0.8`）、`'events'`（`1.5`）或 `'airflow'`（`0.3`）匯流排的線性音量。 |
+| `setReverb(amount)` | `void` | 變更殘響量，並限制在 0–1 之間。 |
+| `output` | `AudioNode \| null` | 經過限幅器之後的最終節點；在有音訊情境之前為 `null`。它已連接至喇叭；若要視覺化或錄音，可連接 `AnalyserNode` 或 `MediaStreamAudioDestinationNode`。 |
+| `context` | `BaseAudioContext \| null` | 目前使用的音訊情境。 |
+| `ready` | `boolean` | 一旦有可供播放的音訊情境即為 `true`。 |
+| `stats()` | object | `{ voices, nodes, started, aggregated, stolen, released }`，供除錯使用。 |
+| `recipes` | object | 目前已註冊的配方，以名稱為索引。 |
+| `suspend()` / `resume()` | `Promise<void>` | 暫停與恢復音訊處理，例如頁面隱藏時。 |
+| `stopAll()` / `dispose()` | `void` | 停止所有單發音效並讓所有氣流發聲單元淡出；釋放所有節點並關閉音訊情境。 |
+
+`play()` 與 `emit()` 的選項：
+
+| 選項 | 說明 |
 |---|---|
-| <code>start()</code> | 建立／恢復 audio context。請在點擊或觸控的處理函式裡呼叫；也會讓 iPhone 開著靜音開關時仍有聲音。 |
-| <code>play(name, { when?, delay?, gain?, pan?, key?, category? })</code> | 播放一個配方。被略過時回傳 <code>false</code>（不認得、音量為零，或和幾毫秒前相同的觸發合併）。 |
-| <code>bind(event, recipe &#124; { recipe, gain?, category? })</code>／<code>emit(event, options?)</code> | 把模擬事件對應到配方。 |
-| <code>define(name, recipe)</code> | 加入自己的配方。 |
-| <code>airflow(id, { style?, pan? })</code> | 取得或建立具名的氣流聲部。每一幀呼叫 <code>.update(speed01, level)</code>；<code>.setStyle()</code> 換音色、<code>.silence()</code> 停止。 |
-| <code>setLevel('master' &#124; 'events' &#124; 'airflow', value)</code>、<code>setReverb(amount)</code> | 混音。 |
-| <code>output</code> | 最後一個節點（限幅器之後），可接分析器或 <code>MediaRecorder</code>。 |
-| <code>suspend()</code>／<code>resume()</code>／<code>stopAll()</code>／<code>dispose()</code> | 生命週期。 |
+| `when` | 開始播放時的音訊情境絕對時間。會覆寫 `delay`。 |
+| `delay` | 從現在起算的秒數（再加上 `latency`）。 |
+| `gain` | 線性增益倍數。 |
+| `pan` | 立體聲位置，範圍為 −1（左）至 1（右）。 |
+| `key` | 在約 6 毫秒內具有相同 key 的觸發會合併為一個。預設為配方名稱。 |
+| `category` | 同一類別的發聲單元上限為 14（0.1 版中無法透過 `MachineAudio` 設定），因此繁忙的聲音不會耗盡整個發聲單元池。預設為配方名稱。 |
+
+### 需要留意的行為
+
+- **可在任何地方建構，於瀏覽器中啟動。** 在伺服器端算圖期間呼叫 `new MachineAudio()` 是安全的；在不存在 `AudioContext` 的環境中，`start()` 會擲出例外。
+- **重複播放會略有變化。** 透過 `MachineAudio` 播放的每個單發音效，其濾波器與振盪器的起始頻率都會隨機偏移最多 ±6%，因此重複觸發時聽起來不會完全相同。
+- **發聲單元的回收很平順。** 達到上限時，最舊的發聲單元會在數毫秒內淡出，而不是被硬切斷。
+- **`dispose()` 會關閉音訊情境**（當它是 `AudioContext` 時），包括你透過 `context` 傳入的音訊情境。
+- **氣流發聲單元會持續存在。** 每個 `id` 的發聲單元會保留到 `audio.dispose()` 為止；若之後還要使用該 id，請勿呼叫發聲單元本身的 `dispose()`。請為每個移動零件固定使用一個 id，停止時呼叫 `silence()`，而不是每次移動都建立新的 id。
+
+<a id="airflow-voices"></a>
+### 氣流發聲單元
+
+`airflow(id, options)` 的選項，僅在建立發聲單元時有效：
+
+| 選項 | 預設值 | 說明 |
+|---|---|---|
+| `style` | `AIRFLOW_STYLES.smooth` | 一個 `AirflowStyle` 物件：可為內建風格之一，或你自己的風格（展開內建風格並修改欄位）。 |
+| `pan` | — | 固定的立體聲位置，範圍為 −1 至 1（與 `play()` 不同，不會被限制範圍）。 |
+| `bufferLength` | `524288` (2¹⁹) | 迴圈緩衝區的長度，單位為取樣數，須為 2 的冪。較短則建置較快；較長則更能隱藏迴圈痕跡。 |
+| `trim` | `0.56` | 輸出微調值，會在 `update()` 中與 `level` 相乘。 |
+
+| 成員 | 說明 |
+|---|---|
+| `update(speed01, level, at?)` | 每個影格呼叫一次。`speed01` 為正規化速度（0–1）；`level` 為線性增益，會與 `trim` 相乘；傳入 `1` 即為預設平衡，整體混音請使用 `setLevel('airflow', …)`。 |
+| `setStyle(style)` | 切換為另一種風格，例如 `AIRFLOW_STYLES.warm`。發聲單元會從靜音重新開始，並在下一次 `update()` 時跟隨。 |
+| `silence(at?)` | 使發聲單元淡出，例如機器停止時。 |
+| `dispose()` | 停止並中斷發聲單元的連接。 |
+
+內建風格以 `AIRFLOW_STYLES` 匯出：`smooth`（預設）、`warm`（較暗、較柔和）、`airy`（較輕盈）、`slow`（起伏較緩慢）。
+
+```ts
+import { AIRFLOW_STYLES } from 'procedural-machine-audio';
+
+audio.airflow('head', { style: AIRFLOW_STYLES.warm, pan: -0.3 });
+```
 
 ### 內建配方
 
 `click` · `tap` · `lift` · `hiss` · `leak` · `puff` · `feed` · `clamp` · `unclamp` · `shutter` · `swap` · `settle`
 
-### 氣流音色
+這些配方本身以 `RECIPES` 匯出（名稱型別為 `BuiltInRecipe`），因此你可以複製其中一個作為起點。
 
-<code>smooth</code>（預設）· <code>warm</code>（較暗、較柔）· <code>airy</code>（較輕）· <code>slow</code>（緩慢起伏）
+## 自訂配方
 
-## <img src="docs/cast/RW-01.svg" alt="" width="34" height="34" align="absmiddle"> 自訂配方
-
-配方就是一般的資料：一串「層」。每一層是帶通雜訊或短音，各自有包絡。
+配方是純資料：由多個圖層組成的陣列。圖層可以是帶通雜訊，也可以是短音調，每個圖層都有各自的包絡。
 
 ```ts
-audio.define('latch', [
+import type { Recipe } from 'procedural-machine-audio';
+
+const latch: Recipe = [
   { kind: 'noise', noise: 'pink', freq: 1400, q: 0.8, lowpass: 3500, gain: 0.5, attack: 0.004, decay: 0.04 },
   { kind: 'noise', noise: 'brown', freq: 220, q: 0.7, lowpass: 600, gain: 0.25, attack: 0.008, decay: 0.12, delay: 0.03 },
-]);
+];
+
+audio.define('latch', latch);
 audio.play('latch');
 ```
 
-讓聲音長時間聽起來舒服的小訣竅：<code>q</code> 保持低（約 0.6–1.5）、加上 <code>lowpass</code>、雜訊層至少給幾毫秒的 <code>attack</code>、避免很長的音調層。
+| 欄位 | 雜訊圖層 | 音調圖層 | 說明 |
+|---|---|---|---|
+| `kind` | 必填 | 必填 | `'noise'` 或 `'tone'`。 |
+| `noise` | 必填 | — | `'white'`、`'pink'` 或 `'brown'`。 |
+| `freq` | 必填 | 必填 | 帶通中心頻率（雜訊）或振盪器頻率（音調），單位為 Hz。 |
+| `q` | 必填 | — | 帶通的 Q 值。 |
+| `wave` | — | 選填 | 振盪器類型，預設為 `'sine'`。 |
+| `gain` | 必填 | 必填 | 圖層的峰值增益。 |
+| `attack` | 必填 | 選填 | 從靜音升至峰值所需的秒數（音調的預設值為 `0.001`）。 |
+| `decay` | 必填 | 必填 | 從峰值衰減至 −80 dB 所需的秒數；大致上前三分之一的時間可被聽見。 |
+| `sweepTo` | 選填 | 選填 | 滑移的目標頻率（Hz）：雜訊為帶通中心頻率（歷時 `attack` + `decay`），音調則為音高（歷時 `decay`）。 |
+| `lowpass` | 選填 | 選填 | 圖層之後的低通濾波器，單位為 Hz。 |
+| `delay` | 選填 | 選填 | 相對於觸發時間的偏移，單位為秒。 |
 
-## <img src="docs/cast/CH-02.svg" alt="" width="34" height="34" align="absmiddle"> 底層元件
+為了讓聲音在長時間使用下仍保持悅耳，請將 `q` 維持在較低的值（約 0.6–1.5）、加入 `lowpass`、讓雜訊圖層具有數毫秒的 `attack`，並避免使用過長的音調圖層。
 
-引擎用到的每個元件都有匯出，可以自己組聲音流程：
+## 錄音與離線算圖
 
-| 匯出 | |
+若要錄下正在播放的內容，請將 `output` 連接到 `MediaStreamAudioDestinationNode`，並使用 `MediaRecorder`：
+
+```ts
+const ctx = audio.context as AudioContext; // 即時音訊情境，須在 start() 之後
+const dest = ctx.createMediaStreamDestination();
+audio.output!.connect(dest);
+
+const recorder = new MediaRecorder(dest.stream);
+const chunks: Blob[] = [];
+recorder.ondataavailable = (e) => chunks.push(e.data);
+recorder.onstop = () => {
+  const file = new Blob(chunks, { type: recorder.mimeType }); // 例如 audio/webm
+};
+recorder.start();
+```
+
+若要在沒有喇叭的情況下以快於即時的速度算圖，例如在測試中分析某個配方，或匯出一段聲音，請傳入 `OfflineAudioContext`。這種情況下不需要 `start()`。
+
+```ts
+const ctx = new OfflineAudioContext(2, 48000 * 2, 48000); // 2 秒，立體聲
+const audio = new MachineAudio({ context: ctx });
+
+audio.play('click', { when: 0.1 });
+audio.play('hiss', { when: 0.5 });
+
+const buffer = await ctx.startRendering(); // AudioBuffer
+```
+
+## 基礎元件
+
+引擎的內部元件也一併匯出，因此你可以組裝自己的訊號圖。主要如下：
+
+| 匯出項目 | 說明 |
 |---|---|
-| <code>renderRecipe(ctx, destination, noise, recipe, { when, gain })</code> | 把配方排程到任意節點。 |
-| <code>AirflowVoice</code>、<code>getAirflowBuffers</code>、<code>AIRFLOW_STYLES</code> | 氣流合成器，以及用 FFT 塑形的循環緩衝。 |
-| <code>createNoiseBank(ctx, seconds, seed)</code> | 可指定種子、無接縫循環的白／粉紅／棕色雜訊。 |
-| <code>createRoomImpulse(ctx)</code> | 給 <code>ConvolverNode</code> 用的短而柔和的空間脈衝響應。 |
-| <code>VoicePool</code> | 聲部上限、搶占最舊的聲部、合併連發事件。 |
-| <code>EventScheduler</code> | 給模擬用的確定性事件佇列（依時間、再依加入順序）。 |
-| <code>planMove</code>、<code>sampleMove</code> | 梯形／S 曲線運動曲線，讓氣流聲跟著合理的速度。 |
+| `renderRecipe(ctx, destination, noise, recipe, { when, gain?, jitter?, random? })` | 將配方排程到任何 `AudioNode`。`jitter` 為每次觸發的隨機偏調量（預設 `0.06` = ±6%；`0` = 每次完全相同）；`random` 可取代 `Math.random`，以取得可重現的輸出。 |
+| `RECIPES` | 以資料形式提供的內建配方。 |
+| `AirflowVoice`、`getAirflowBuffers`、`AIRFLOW_STYLES` | 氣流合成器及其經 FFT 塑形的迴圈緩衝區。 |
+| `createNoiseBank(ctx, seconds?, seed?)` | 帶種子、可無縫循環的白、粉紅與棕色雜訊（預設：`5` 秒、種子 `12345`）。 |
+| `createRoomImpulse(ctx)` | 供 `ConvolverNode` 使用的短而柔和的房間脈衝響應。 |
+| `VoicePool` | 發聲單元數量上限、最舊發聲單元回收，以及合併幾乎相同的觸發。 |
+| `EventScheduler` | 依時間排序、時間相同時再依插入順序排序的確定性事件佇列。 |
+| `planMove`、`sampleMove` | 梯形與 S 曲線的運動輪廓，用來以合理的速度驅動氣流（範例見下）。 |
+| `unlockSilentSwitch`、`pauseSilentSwitch` | `start()` 與 `suspend()` 所使用的 iOS 靜音開關處理機制。 |
 
-## <img src="docs/cast/GR-04.svg" alt="" width="34" height="34" align="absmiddle"> 氣流聲的原理
+TypeScript 型別也一併匯出：`MachineAudioOptions`、`PlayOptions`、`Binding`、`LevelName`、`Recipe`、`Layer`、`NoiseLayer`、`ToneLayer`、`AirflowStyle`、`AirflowOptions`、`MotionLimits`、`MoveProfile`、`MoveSample` 等；請參閱 [`src/index.ts`](src/index.ts)。
 
-兩層循環雜訊用反 FFT 一次建好，所以循環沒有接縫：
+若你的模擬尚未建立運動模型，`planMove` 可提供逼真的速度曲線，供氣流使用：
 
-- <b>主體</b>：具寬廣頻譜曲線的雜訊；音量跟著速度的平方，底下有一層很小的常駐氣流，整個頻譜也會隨速度往上移。
-- <b>推力</b>：一段高斯形的低頻雜訊帶（不是共振），中心頻率隨速度升高。它的包絡比主體快，所以每次移動一開始都有一下輕柔的「推」。
+```ts
+import { planMove, sampleMove } from 'procedural-machine-audio';
 
-高頻擱架比主體晚一點打開（「空氣感」），聲像在左右之間輕微飄動。沒有振盪器、也沒有共振濾波器，所以不會出現嗡聲或哨音。
+const limits = { vmax: 1400, amax: 14000 };        // 單位/秒 與 單位/秒²
+const move = planMove(distance, limits, 'scurve'); // 或 'trapezoid'
 
-## <img src="docs/cast/DU-03.svg" alt="" width="34" height="34" align="absmiddle"> 開發
+// 每個影格，t = 自移動開始起經過的秒數：
+const { s, v } = sampleMove(move, t);              // 已行進距離、目前速度
+audio.airflow('head').update(v / limits.vmax, 1);
+```
+
+<a id="how-the-airflow-works"></a>
+## 氣流的運作原理
+
+```
+one-shots ─┐            ┌─ dry ─────────┐
+           ├─ mix ──────┤               ├─ master ─ limiter ─ output
+airflow ───┘            └─ room reverb ─┘
+```
+
+每個氣流發聲單元會播放兩層循環雜訊。兩者皆以反向 FFT 一次性產生，因此循環時沒有接縫：
+
+- **本體（Body）**：具有寬頻頻譜曲線的雜訊。其音量在一個安靜的恆定底噪之上，隨速度的平方而變化，且整個頻譜會隨速度增加而向上滑移。
+- **推送（Push）**：一段高斯形的低頻雜訊頻帶（並非共振），其中心頻率隨速度上升。它的包絡反應比本體更快，因此每次移動都會以一股柔和的推送感開始。
+
+一個高頻擱架濾波器會稍晚於本體開啟（「空氣感」），而立體聲影像會隨速度輕微漂移。氣流路徑中沒有振盪器，也沒有共振濾波器，因此不會產生餘響或哨音。
+
+<a id="browser-support"></a>
+## 瀏覽器支援
+
+本程式庫需要 Web Audio API（`AudioContext`），且尚未在各瀏覽器間進行系統性測試。
+
+- 在沒有 `StereoPannerNode` 的環境中，`pan` 會被忽略。
+- 在 iPhone 與 iPad 上，Web Audio 預設會被靜音開關靜音。在 Safari 支援的情況下，`start()` 會將 `navigator.audioSession.type` 設為 `'playback'`，同時播放一個無聲的循環媒體元素，使頁面被視為媒體播放。`suspend()` 會暫停該元素，`resume()` 則會重新啟動它。
+
+## 限制
+
+- 單發音效僅由經濾波的雜訊與短音調組成。本程式庫不播放音訊檔案。
+- 不提供空間（3D）定位；位置安排僅限於立體聲平衡。
+- 氣流迴圈緩衝區會在首次使用發聲單元或風格時於主執行緒上產生；在預設緩衝區長度下，可能會有明顯的等待時間。
+
+## 開發
 
 ```bash
 npm install
-npm run dev        # 在 http://localhost:5320 開啟示範
-npm test           # 單元測試
-npm run build      # 函式庫 → dist/
-npm run build:demo # 靜態示範 → dist-demo/
+npm run dev         # 展示頁面位於 http://localhost:5320
+npm test            # 單元測試（Vitest）
+npm run typecheck   # TypeScript，嚴格模式
+npm run build       # 程式庫 → dist/
+npm run build:demo  # 靜態展示 → dist-demo/
 ```
 
-需要 Node.js 20 以上。
+需要 Node.js 20 或更新版本。
 
-## <img src="docs/cast/ST-03.svg" alt="" width="34" height="34" align="absmiddle"> 狀態
+## 專案狀態
 
-<code>0.1.0</code>：早期版本，API 之後可能還會變動。
+版本 `0.1.0` 為早期預覽版。在 1.0 之前 API 仍可能變動；破壞性變更將在已標記的 [GitHub releases](https://github.com/TENMALOG/procedural-machine-audio/releases) 中註明。
 
-## <img src="docs/cast/DU-04.svg" alt="" width="34" height="34" align="absmiddle"> 授權
+## 參與貢獻
 
-程式碼：[MIT](LICENSE) © 2026 TENMALOG。
+歡迎在 [Issues](https://github.com/TENMALOG/procedural-machine-audio/issues) 提出錯誤回報與建議。在開啟 pull request 之前，請先執行 `npm test` 與 `npm run typecheck`。
 
-<code>docs/cast/</code> 裡的角色插圖是 TENMALOG 創作的假想社原創角色，<b>不在</b> MIT 授權範圍內，保留所有權利（[說明](docs/cast/NOTICE.md)）。QM-4 網站本身、它的 3D 模型、美術與調校過的聲音是另外的作品，也不在授權範圍內。
+## 授權
 
----
+[MIT](LICENSE) © 2026 TENMALOG。
 
-<div align="center">
-
-### 假想社的成員
-
-<img src="docs/cast/NEO.svg" alt="NEO" width="44" height="44">
-<img src="docs/cast/ZK.svg" alt="ZK" width="44" height="44">
-<img src="docs/cast/RW-01.svg" alt="RW-01" width="44" height="44">
-<img src="docs/cast/RW-02.svg" alt="RW-02" width="44" height="44">
-<img src="docs/cast/RW-03.svg" alt="RW-03" width="44" height="44">
-<img src="docs/cast/RW-04.svg" alt="RW-04" width="44" height="44">
-<img src="docs/cast/RW-05.svg" alt="RW-05" width="44" height="44">
-<img src="docs/cast/DU-01.svg" alt="DU-01" width="44" height="44">
-<img src="docs/cast/DU-02.svg" alt="DU-02" width="44" height="44">
-<img src="docs/cast/DU-03.svg" alt="DU-03" width="44" height="44">
-<img src="docs/cast/DU-04.svg" alt="DU-04" width="44" height="44">
-<img src="docs/cast/DU-05.svg" alt="DU-05" width="44" height="44">
-<img src="docs/cast/CO-01.svg" alt="CO-01" width="44" height="44">
-<img src="docs/cast/CO-02.svg" alt="CO-02" width="44" height="44">
-<img src="docs/cast/CO-03.svg" alt="CO-03" width="44" height="44">
-<img src="docs/cast/CO-04.svg" alt="CO-04" width="44" height="44">
-<img src="docs/cast/CO-05.svg" alt="CO-05" width="44" height="44">
-<img src="docs/cast/CH-01.svg" alt="CH-01" width="44" height="44">
-<img src="docs/cast/CH-02.svg" alt="CH-02" width="44" height="44">
-<img src="docs/cast/CH-03.svg" alt="CH-03" width="44" height="44">
-<img src="docs/cast/CH-04.svg" alt="CH-04" width="44" height="44">
-<img src="docs/cast/CH-05.svg" alt="CH-05" width="44" height="44">
-<img src="docs/cast/ST-01.svg" alt="ST-01" width="44" height="44">
-<img src="docs/cast/ST-02.svg" alt="ST-02" width="44" height="44">
-<img src="docs/cast/ST-03.svg" alt="ST-03" width="44" height="44">
-<img src="docs/cast/ST-04.svg" alt="ST-04" width="44" height="44">
-<img src="docs/cast/ST-05.svg" alt="ST-05" width="44" height="44">
-<img src="docs/cast/GR-01.svg" alt="GR-01" width="44" height="44">
-<img src="docs/cast/GR-02.svg" alt="GR-02" width="44" height="44">
-<img src="docs/cast/GR-03.svg" alt="GR-03" width="44" height="44">
-<img src="docs/cast/GR-04.svg" alt="GR-04" width="44" height="44">
-<img src="docs/cast/GR-05.svg" alt="GR-05" width="44" height="44">
-<img src="docs/cast/SH-01.svg" alt="SH-01" width="44" height="44">
-<img src="docs/cast/SH-02.svg" alt="SH-02" width="44" height="44">
-<img src="docs/cast/SH-03.svg" alt="SH-03" width="44" height="44">
-<img src="docs/cast/SH-04.svg" alt="SH-04" width="44" height="44">
-<img src="docs/cast/SH-05.svg" alt="SH-05" width="44" height="44">
-
-<sub>TENMALOG 的原創角色，陪你讀完這份說明。</sub>
-
-<br><br>
-
-製作：<b>TENMALOG</b> · <a href="https://qm4.rewrite.tw/?lang=zh">QM-4</a> · <a href="https://pma.rewrite.tw/?lang=zh">線上示範</a>
-
-</div>
+QM-4 網站及其 3D 模型、美術作品與調校過的音效設定為獨立著作，不屬於本儲存庫的一部分。
